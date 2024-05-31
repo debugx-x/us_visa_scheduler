@@ -11,6 +11,9 @@ PRIOD_END = 2023-06-01
 ; Change "en-am-yer", based on your embassy Abbreviation in embassy.py list.
 YOUR_EMBASSY = en-am-yer
 
+; Optional: If you want to check multiple embassies, use the following format(level of preference 1-n):
+YOUR_EMBASSY_CHOICES = en-ca-van,en-ca-tor,en-ca-cal
+
 [CHROMEDRIVER]
 ; Details for the script to control Chrome
 LOCAL_USE = True
