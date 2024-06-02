@@ -322,7 +322,7 @@ def get_available_date(dates):
         date = d.get("date")
         if is_in_period(date, PSD, PED):
             return date
-    print(f"\nNo available dates between ({PSD.date()}) and ({PED.date()})!")
+    print(f"\nNo available dates between ({PSD.date()}) and ({PED.date()})! \n")
 
 
 def info_logger(file_path, log):
