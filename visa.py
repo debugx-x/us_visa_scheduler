@@ -328,10 +328,6 @@ def get_available_date(dates):
 def info_logger(file_path, log):
     # file_path: e.g. "log.txt"
     with open(file_path, "a") as file:
-
-        # check if the file is not empty and clean it
-        # if file.tell() == 0:
-
         file.write(str(datetime.now().time()) + ":\n" + log + "\n")
 
 
@@ -348,7 +344,8 @@ else:
 
 if __name__ == "__main__":
     first_loop = True
-    while True:
+    looping = True
+    while looping:
         LOG_FILE_NAME = "log_" + str(datetime.now().date()) + ".txt"
         if first_loop:
             t0 = time.time()
@@ -384,7 +381,7 @@ if __name__ == "__main__":
                     # Print Available dates:
                     msg = f"Available dates for Embassy {YOUR_EMBASSY_CHOICES[idx]}:\n"
                     if not embassy_dates:
-                        msg += "No available dates for this embassy!"
+                        msg += "No available dates for this embassy! \n"
                     else:
                         for d in embassy_dates:
                             msg = msg + "%s" % (d.get("date")) + ", "
@@ -395,13 +392,11 @@ if __name__ == "__main__":
                         continue
 
                     date = get_available_date(embassy_dates)
-
                     if date:
                         # A good date to schedule for
                         END_MSG_TITLE, msg = reschedule(date, FACILITY_IDS[idx])
+                        looping = False
                         break
-                    print(f"/n/n")
-                    info_logger(LOG_FILE_NAME, f"/n/n")
                 RETRY_WAIT_TIME = random.randint(RETRY_TIME_L_BOUND, RETRY_TIME_U_BOUND)
                 t1 = time.time()
                 total_time = t1 - t0
@@ -419,59 +414,20 @@ if __name__ == "__main__":
                     print(msg)
                     info_logger(LOG_FILE_NAME, msg)
                     time.sleep(RETRY_WAIT_TIME)
+                print(f"\n\n")
+                info_logger(LOG_FILE_NAME, f"\n\n")
 
-            # if not dates:
-            #     # Ban Situation
-            #     msg = f"List is empty, Probabily banned!\n\tSleep for {BAN_COOLDOWN_TIME} hours!\n"
-            #     print(msg)
-            #     info_logger(LOG_FILE_NAME, msg)
-            #     # send_notification("BAN", msg)
-            #     driver.get(SIGN_OUT_LINK)
-            #     time.sleep(BAN_COOLDOWN_TIME * hour)
-            #     first_loop = True
-            # else:
-            #     # Print Available dates:
-            #     msg = ""
-            #     for d in dates:
-            #         msg = msg + "%s" % (d.get('date')) + ", "
-            #     msg = "Available dates:\n"+ msg
-            #     print(msg)
-            #     info_logger(LOG_FILE_NAME, msg)
-            #     date = get_available_date(dates)
-            #     if date:
-            #         # A good date to schedule for
-            #         END_MSG_TITLE, msg = reschedule(date)
-            #         break
-            #     RETRY_WAIT_TIME = random.randint(RETRY_TIME_L_BOUND, RETRY_TIME_U_BOUND)
-            #     t1 = time.time()
-            #     total_time = t1 - t0
-            #     msg = "\nWorking Time:  ~ {:.2f} minutes".format(total_time / minute)
-            #     print(msg)
-            #     info_logger(LOG_FILE_NAME, msg)
-            #     if total_time > WORK_LIMIT_TIME * hour:
-            #         # Let program rest a little
-            #         # send_notification("REST", f"Break-time after {WORK_LIMIT_TIME} hours | Repeated {Req_count} times")
-            #         driver.get(SIGN_OUT_LINK)
-            #         time.sleep(WORK_COOLDOWN_TIME * hour)
-            #         first_loop = True
-            #     else:
-            #         msg = "Retry Wait Time: " + str(RETRY_WAIT_TIME) + " seconds"
-            #         print(msg)
-            #         info_logger(LOG_FILE_NAME, msg)
-            #         time.sleep(RETRY_WAIT_TIME)
         except Exception as e:
             # Exception Occured
-            # log the error
-            # msg = "Error: " + str(e)
             msg = "Error: " + str(e) + "\n\tSleep for 10 seconds!"
             print(msg)
             info_logger(LOG_FILE_NAME, msg)
             time.sleep(10)
-            # break
+            looping = False
 
-print(msg)
-info_logger(LOG_FILE_NAME, msg)
-# send_notification(END_MSG_TITLE, msg)
-driver.get(SIGN_OUT_LINK)
-driver.stop_client()
-driver.quit()
+    print(msg)
+    info_logger(LOG_FILE_NAME, msg)
+    # send_notification(END_MSG_TITLE, msg)
+    driver.get(SIGN_OUT_LINK)
+    driver.stop_client()
+    driver.quit()
