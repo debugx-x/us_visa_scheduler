@@ -13,7 +13,7 @@ The visa_rescheduler is a bot for US VISA (usvisa-info.com) appointment reschedu
 ## Initial Setup
 - Install Google Chrome [for install goto: https://www.google.com/chrome/] (or use microsoft edge, but you should change the driver in the code)
 - Install Python v3 [for install goto: https://www.python.org/downloads/]
-- Install the required python packages: Just run the bat file in the Microsoft Windows. Or run the below commands:
+- Install the required python packages: Just run the bat file in the Microsoft Windows. Or command ``` pip install -r requirements.txt ```. Or run the below commands:
 ```
 pip install requests==2.27.1
 pip install selenium==4.2.0
