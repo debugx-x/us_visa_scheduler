@@ -277,11 +277,15 @@ def get_dates():
     # Requesting to get the whole available dates
     dates = []
     for url in DATE_URLS:
-        session = driver.get_cookie("_yatri_session")["value"]
-        script = JS_SCRIPT % (str(url), session)
-        content = driver.execute_script(script)
-        dates.append(json.loads(content))
-        # add a sleep time to avoid ban
+        try:
+            session = driver.get_cookie("_yatri_session")["value"]
+            script = JS_SCRIPT % (str(url), session)
+            content = driver.execute_script(script)
+            dates.append(json.loads(content))
+            # add a sleep time to avoid ban
+        except Exception as e:
+            print(f"Error: {e}")
+            dates.append([])
         time.sleep(5)
     return dates
 
@@ -360,7 +364,7 @@ if __name__ == "__main__":
             )
             print(msg)
             info_logger(LOG_FILE_NAME, msg)
-            dates = get_date()
+            # dates = get_date()
 
             Embassy_dates = get_dates()
 
