@@ -199,41 +199,41 @@ def start_process():
     print("\n\tlogin successful!\n")
 
 
-def reschedule(date):
-    time = get_time(date)
-    driver.get(APPOINTMENT_URL)
-    headers = {
-        "User-Agent": driver.execute_script("return navigator.userAgent;"),
-        "Referer": APPOINTMENT_URL,
-        "Cookie": "_yatri_session=" + driver.get_cookie("_yatri_session")["value"],
-    }
-    data = {
-        "utf8": driver.find_element(by=By.NAME, value="utf8").get_attribute("value"),
-        "authenticity_token": driver.find_element(
-            by=By.NAME, value="authenticity_token"
-        ).get_attribute("value"),
-        "confirmed_limit_message": driver.find_element(
-            by=By.NAME, value="confirmed_limit_message"
-        ).get_attribute("value"),
-        "use_consulate_appointment_capacity": driver.find_element(
-            by=By.NAME, value="use_consulate_appointment_capacity"
-        ).get_attribute("value"),
-        "appointments[consulate_appointment][facility_id]": FACILITY_ID,
-        "appointments[consulate_appointment][date]": date,
-        "appointments[consulate_appointment][time]": time,
-    }
-    r = requests.post(APPOINTMENT_URL, headers=headers, data=data)
-    if r.text.find("Successfully Scheduled") != -1:
-        title = "SUCCESS"
-        msg = f"Rescheduled Successfully! {date} {time}"
-    else:
-        title = "FAIL"
-        msg = f"Reschedule Failed!!! {date} {time}"
-    return [title, msg]
+# def reschedule(date):
+#     time = get_time(date)
+#     driver.get(APPOINTMENT_URL)
+#     headers = {
+#         "User-Agent": driver.execute_script("return navigator.userAgent;"),
+#         "Referer": APPOINTMENT_URL,
+#         "Cookie": "_yatri_session=" + driver.get_cookie("_yatri_session")["value"],
+#     }
+#     data = {
+#         "utf8": driver.find_element(by=By.NAME, value="utf8").get_attribute("value"),
+#         "authenticity_token": driver.find_element(
+#             by=By.NAME, value="authenticity_token"
+#         ).get_attribute("value"),
+#         "confirmed_limit_message": driver.find_element(
+#             by=By.NAME, value="confirmed_limit_message"
+#         ).get_attribute("value"),
+#         "use_consulate_appointment_capacity": driver.find_element(
+#             by=By.NAME, value="use_consulate_appointment_capacity"
+#         ).get_attribute("value"),
+#         "appointments[consulate_appointment][facility_id]": FACILITY_ID,
+#         "appointments[consulate_appointment][date]": date,
+#         "appointments[consulate_appointment][time]": time,
+#     }
+#     r = requests.post(APPOINTMENT_URL, headers=headers, data=data)
+#     if r.text.find("Successfully Scheduled") != -1:
+#         title = "SUCCESS"
+#         msg = f"Rescheduled Successfully! {date} {time}"
+#     else:
+#         title = "FAIL"
+#         msg = f"Reschedule Failed!!! {date} {time}"
+#     return [title, msg]
 
 
 def reschedule(date, facility_id=FACILITY_ID):
-    time = get_time(date)
+    booking_time = get_time(date)
     driver.get(APPOINTMENT_URL)
     headers = {
         "User-Agent": driver.execute_script("return navigator.userAgent;"),
@@ -253,9 +253,21 @@ def reschedule(date, facility_id=FACILITY_ID):
         ).get_attribute("value"),
         "appointments[consulate_appointment][facility_id]": facility_id,
         "appointments[consulate_appointment][date]": date,
-        "appointments[consulate_appointment][time]": time,
+        "appointments[consulate_appointment][time]": booking_time,
     }
-    r = requests.post(APPOINTMENT_URL, headers=headers, data=data)
+
+    # try to post the request 3 times if it fails
+    requestCount = 0
+    while requestCount < 3:
+        try:
+            r = requests.post(APPOINTMENT_URL, headers=headers, data=data)
+            break
+        except Exception as e:
+            print(f"Error: {e}")
+            requestCount += 1
+            print(f"Retrying... {requestCount}")
+            time.sleep(5)
+
     if r.text.find("Successfully Scheduled") != -1:
         title = "SUCCESS"
         msg = f"Rescheduled Successfully! {date} {time}"
@@ -337,9 +349,7 @@ if LOCAL_USE:
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver = webdriver.Edge(service=Service(EdgeChromiumDriverManager().install()))
 else:
-    driver = webdriver.Remote(
-        command_executor=HUB_ADDRESS, options=webdriver.ChromeOptions()
-    )
+    driver = webdriver.Remote(command_executor=HUB_ADDRESS, options=webdriver.ChromeOptions())
 
 
 if __name__ == "__main__":
@@ -423,7 +433,6 @@ if __name__ == "__main__":
             print(msg)
             info_logger(LOG_FILE_NAME, msg)
             time.sleep(10)
-            looping = False
 
     print(msg)
     info_logger(LOG_FILE_NAME, msg)
